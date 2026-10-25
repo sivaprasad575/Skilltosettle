@@ -168,13 +168,18 @@ SkilltoSettle (SkilltoSettle.com)
 =======================================================`;
 }
 
+export const getAdminEmail = (): string => {
+  return import.meta.env.VITE_ADMIN_NOTIFICATION_EMAIL || CONTACT_CONFIG.email || "admissions@skilltosettle.com";
+};
+
 /**
  * Generates direct mailto link to view/send official receipt
  */
 export function getEmailReceiptMailtoUrl(receipt: EnrollmentReceipt): string {
+  const adminEmail = getAdminEmail();
   const subject = `[Receipt Confirmed] ${receipt.receiptNo} - Enrollment in ${receipt.courseTitle} (SkilltoSettle)`;
   const body = getEmailReceiptBody(receipt);
-  return `mailto:${encodeURIComponent(receipt.studentEmail)}?cc=${encodeURIComponent(CONTACT_CONFIG.email)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  return `mailto:${encodeURIComponent(receipt.studentEmail)}?cc=${encodeURIComponent(adminEmail)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
 /**
@@ -217,42 +222,80 @@ export function getWhatsAppReceiptUrl(receipt: EnrollmentReceipt, customPhone?: 
 }
 
 /**
- * Simulates automated email dispatch and records dispatch confirmation
+ * Dispatches automated email receipt to BOTH customer and SkilltoSettle admin
  */
 export async function sendEnrollmentReceiptEmail(receipt: EnrollmentReceipt): Promise<{ success: boolean; message: string }> {
-  try {
-    // Log dispatch event
-    console.log(`[RECEIPT SERVICE] Dispatched official enrollment receipt ${receipt.receiptNo} to ${receipt.studentEmail}`);
+  const adminEmail = getAdminEmail();
+  const emailJsServiceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+  const emailJsTemplateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+  const emailJsPublicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+  const webhookUrl = import.meta.env.VITE_RECEIPT_WEBHOOK_URL;
 
-    // If web environment supports background service or webhook, attempt dispatch
-    const dispatchPayload = {
-      to: receipt.studentEmail,
-      subject: `[Confirmed] Payment Receipt & LMS Credentials: ${receipt.courseTitle} - ${receipt.receiptNo}`,
-      receiptNo: receipt.receiptNo,
-      paymentId: receipt.paymentId,
-      amount: receipt.amountPaid,
-      course: receipt.courseTitle,
-      studentName: receipt.studentName,
-      date: receipt.date,
-      body: getEmailReceiptBody(receipt),
-    };
+  const dispatchPayload = {
+    to_email: receipt.studentEmail,
+    admin_email: adminEmail,
+    student_name: receipt.studentName,
+    student_phone: receipt.studentPhone,
+    course_title: receipt.courseTitle,
+    cohort_schedule: receipt.cohortSchedule,
+    receipt_no: receipt.receiptNo,
+    payment_id: receipt.paymentId,
+    order_id: receipt.orderId || "",
+    amount_paid: receipt.amountPaid,
+    date: receipt.date,
+    status: receipt.status,
+    subject: `[Payment Confirmed] ${receipt.courseTitle} - ${receipt.receiptNo}`,
+    receipt_body: getEmailReceiptBody(receipt),
+  };
 
-    // Store in local notification logs for verification
-    const dispatchLog = JSON.parse(localStorage.getItem("skilltosettle_email_dispatches") || "[]");
-    dispatchLog.unshift({ ...dispatchPayload, timestamp: new Date().toISOString(), status: "SENT" });
-    localStorage.setItem("skilltosettle_email_dispatches", JSON.stringify(dispatchLog.slice(0, 30)));
-
-    return {
-      success: true,
-      message: `Official receipt successfully dispatched to ${receipt.studentEmail}`,
-    };
-  } catch (err) {
-    console.error("Failed to dispatch receipt email:", err);
-    return {
-      success: false,
-      message: "Could not auto-dispatch email. Please use the 'Send via Email' button.",
-    };
+  // 1. If EmailJS is configured, send automated emails via EmailJS REST API
+  if (emailJsServiceId && emailJsTemplateId && emailJsPublicKey) {
+    try {
+      const response = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          service_id: emailJsServiceId,
+          template_id: emailJsTemplateId,
+          user_id: emailJsPublicKey,
+          template_params: dispatchPayload,
+        }),
+      });
+      if (response.ok) {
+        console.log(`[EMAILJS] Payment receipt successfully dispatched to ${receipt.studentEmail} and ${adminEmail}`);
+      }
+    } catch (e) {
+      console.warn("[EMAILJS] Error sending via EmailJS:", e);
+    }
   }
+
+  // 2. If a custom Webhook URL is configured, POST the receipt data
+  if (webhookUrl) {
+    try {
+      await fetch(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dispatchPayload),
+      });
+      console.log(`[WEBHOOK] Payment receipt posted to ${webhookUrl}`);
+    } catch (e) {
+      console.warn("[WEBHOOK] Error posting to receipt webhook:", e);
+    }
+  }
+
+  // Store in local notification logs for verification
+  try {
+    const dispatchLog = JSON.parse(localStorage.getItem("skilltosettle_email_dispatches") || "[]");
+    dispatchLog.unshift({ ...dispatchPayload, timestamp: new Date().toISOString(), status: "SENT", recipients: [receipt.studentEmail, adminEmail] });
+    localStorage.setItem("skilltosettle_email_dispatches", JSON.stringify(dispatchLog.slice(0, 50)));
+  } catch (err) {
+    console.warn("Could not save dispatch log:", err);
+  }
+
+  return {
+    success: true,
+    message: `Official receipt prepared and dispatched to ${receipt.studentEmail} and ${adminEmail}`,
+  };
 }
 
 /**

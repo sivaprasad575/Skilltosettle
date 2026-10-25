@@ -985,7 +985,7 @@
       <form id="certForm" onsubmit="event.preventDefault(); saveCurrentRecord();">
         <div class="field-group">
           <label class="field-label">Candidate Name</label>
-          <input type="text" id="candidateNameInput" class="field-input" value="Candidate Name" oninput="updatePreview()" required />
+          <input type="text" id="candidateNameInput" class="field-input" value="Rahul Verma" oninput="updatePreview()" required />
         </div>
 
         <div class="field-group">
@@ -1132,7 +1132,7 @@
           <!-- Body -->
           <div class="cert-body">
             <div class="certintro-text" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.84rem; font-weight: 700; letter-spacing: 0.22em; color: #64748b; text-transform: uppercase; margin-bottom: 8px;">THIS IS TO PROUDLY CERTIFY THAT</div>
-            <div class="cert-candidate-name" id="viewCandidateName">Candidate Name</div>
+            <div class="cert-candidate-name" id="viewCandidateName">Rahul Verma</div>
             <p class="cert-statement">
               has demonstrated outstanding technical proficiency, completed real-world production capstone projects, and fulfilled all graduation requirements for
             </p>
@@ -1248,7 +1248,7 @@
     }
 
     function updatePreview() {
-      const candidateName = document.getElementById("candidateNameInput").value || "Candidate Name";
+      const candidateName = document.getElementById("candidateNameInput").value || "Rahul Verma";
       const courseTitle = document.getElementById("courseTitleInput").value || "Course Title";
       const spec = document.getElementById("specInput").value || "";
       const credId = (document.getElementById("idInput").value || "STS-SEC-2026-8942").trim().toUpperCase();

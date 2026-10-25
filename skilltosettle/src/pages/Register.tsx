@@ -57,8 +57,9 @@ export default function Register() {
       if (res.success) {
         setSuccess(true);
         setTimeout(() => {
-          navigate(redirectPath);
-        }, 800);
+          const target = redirectPath && redirectPath.startsWith("/student") ? redirectPath : "/student";
+          navigate(target);
+        }, 500);
       } else {
         setError(res.error || "Registration failed. Please try again.");
       }

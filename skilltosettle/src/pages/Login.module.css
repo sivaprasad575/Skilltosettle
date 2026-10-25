@@ -294,43 +294,34 @@
   border: 1px solid var(--color-teal-border);
 }
 
-/* Role Switcher Tabs */
-.roleTabs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  background: var(--bg-muted, #f1f5f9);
-  padding: 4px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-  border: 1px solid var(--border-color, #e2e8f0);
-}
-
-.roleTab {
-  display: flex;
+.roleBadgeStudent {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px 14px;
-  border: none;
-  background: transparent;
-  color: var(--text-secondary, #64748b);
-  font-size: 0.86rem;
+  gap: 6px;
+  background: #f0f9ff;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 0.8rem;
   font-weight: 700;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  margin-bottom: 16px;
+  align-self: flex-start;
 }
 
-.roleTabActive {
-  background: #ffffff;
-  color: #0f172a;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
-}
-
-.roleTabAdminActive {
-  background: #7c3aed;
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+.roleBadgeAdmin {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f5f3ff;
+  color: #7c3aed;
+  border: 1px solid #ddd6fe;
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  align-self: flex-start;
 }
 
 /* Demo Credentials Box */
@@ -408,5 +399,92 @@
     width: 100%;
     text-align: center;
   }
+}
+
+.studentRegisterCard {
+  margin-top: 20px;
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.06) 0%, rgba(0, 155, 185, 0.09) 100%);
+  border: 1.5px solid rgba(2, 132, 199, 0.22);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+}
+
+.studentRegisterHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.studentRegisterIcon {
+  font-size: 1.6rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.studentRegisterTitle {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--text-primary, #0f172a);
+  margin-bottom: 2px;
+}
+
+.studentRegisterSub {
+  font-size: 0.8rem;
+  color: var(--text-secondary, #64748b);
+  line-height: 1.4;
+}
+
+.studentRegisterCta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-accent, #009bb9);
+  color: #ffffff !important;
+  font-weight: 700;
+  font-size: 0.88rem;
+  padding: 10px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 155, 185, 0.25);
+  font-family: var(--font-display, sans-serif);
+}
+
+.studentRegisterCta:hover {
+  background: var(--color-accent-hover, #00849e);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 155, 185, 0.35);
+}
+
+.adminSwitchPrompt {
+  margin-top: 18px;
+  padding: 12px 14px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.errorRegisterBtn {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 6px 12px;
+  background: #dc2626;
+  color: #ffffff !important;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.errorRegisterBtn:hover {
+  background: #b91c1c;
 }
 

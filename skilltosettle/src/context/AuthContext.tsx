@@ -20,7 +20,7 @@ export interface StoredStudent {
 }
 
 export const DEFAULT_ADMIN_CREDS: AdminCredentials = {
-  email: "admin@skilltosettle.com",
+  email: "info@skilltosettle.com",
   password: "SkilltoSettle@Admin2025",
   name: "Administrator",
 };
@@ -70,6 +70,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           parsed.name = "Student";
           localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(parsed));
         }
+        if (parsed?.role === "Admin" && parsed?.email === "admin@skilltosettle.com") {
+          parsed.email = "info@skilltosettle.com";
+          localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(parsed));
+        }
         setUser(parsed);
       }
     } catch {
@@ -83,7 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const stored = localStorage.getItem(STORAGE_ADMIN_CREDS_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (parsed?.password === "Admin@123") {
+        if (parsed?.password === "Admin@123" || parsed?.email === "admin@skilltosettle.com") {
           parsed.password = DEFAULT_ADMIN_CREDS.password;
           parsed.email = DEFAULT_ADMIN_CREDS.email;
           localStorage.setItem(STORAGE_ADMIN_CREDS_KEY, JSON.stringify(parsed));

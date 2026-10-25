@@ -73,6 +73,11 @@ export default function App() {
                 <Route path="/admin/sales" element={<CertificateGenerator />} />
                 <Route path="/admin/portal" element={<CertificateGenerator />} />
                 <Route path="/admin/certificates" element={<CertificateGenerator />} />
+                <Route path="/admin/login" element={<Login />} />
+                <Route path="/admin/profile" element={<Profile />} />
+                <Route path="/student" element={<Profile />} />
+                <Route path="/student/login" element={<Login />} />
+                <Route path="/student/profile" element={<Profile />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/log" element={<Login />} />

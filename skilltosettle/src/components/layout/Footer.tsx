@@ -173,6 +173,8 @@ export default function Footer() {
             <h4 className={styles.heading}>Admissions & Support</h4>
             <ul className={styles.linkList}>
               <li><Link to="/contact" className={styles.link} style={{ color: "#38bdf8", fontWeight: 700 }}>🎯 100% Placement Desk</Link></li>
+              <li><Link to="/student" className={styles.link} style={{ color: "#38bdf8" }}>🎓 Student Login (/student)</Link></li>
+              <li><Link to="/admin" className={styles.link} style={{ color: "#c084fc" }}>🛡️ Admin Portal (/admin)</Link></li>
               <li><Link to="/verify" className={styles.link} style={{ color: "#34d399", fontWeight: 700 }}>🔍 Verify Certificate / Credential</Link></li>
               <li><a href={getWhatsAppUrl("Hi! I would like to speak to an admissions advisor at SkilltoSettle for India & USA courses.")} target="_blank" rel="noopener noreferrer" className={styles.link}>WhatsApp Advisor ({CONTACT_CONFIG.whatsappDisplay})</a></li>
               <li><Link to="/instructors" className={styles.link}>Meet Lead Mentors (India &amp; USA)</Link></li>

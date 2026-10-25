@@ -239,7 +239,7 @@ export default function EnrollmentCheckoutModal({
                     Official Receipt Dispatched to Email
                   </div>
                   <div style={{ fontSize: "0.8rem", color: "#334155" }}>
-                    Delivered to <strong>{email || user?.email}</strong> (Invoice #{generatedReceipt?.receiptNo || "STS-REC"})
+                    Dispatched to <strong>{email || user?.email}</strong> &amp; <strong>admissions@skilltosettle.com</strong> (Invoice #{generatedReceipt?.receiptNo || "STS-REC"})
                   </div>
                 </div>
               </div>
@@ -663,6 +663,30 @@ export default function EnrollmentCheckoutModal({
 
             <div className={styles.modalPaymentsWrapper}>
               <PaymentBadges layout="compact" showLabel={false} />
+            </div>
+
+            <div style={{ textAlign: "center", marginTop: "10px" }}>
+              <a
+                href={getWhatsAppUrl(`Hi SkilltoSettle Team! I am interested in enrolling for "${title}" (${preferredBatch || batch}). Please assist me with payment / direct UPI options.`)}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  fontSize: "0.82rem",
+                  color: "#166534",
+                  fontWeight: 600,
+                  textDecoration: "none",
+                  background: "#f0fdf4",
+                  padding: "6px 12px",
+                  borderRadius: "6px",
+                  border: "1px solid #bbf7d0"
+                }}
+              >
+                <span>💬</span>
+                <span>Prefer Direct UPI / NetBanking? Chat on WhatsApp</span>
+              </a>
             </div>
 
             <p className={styles.secureText}>

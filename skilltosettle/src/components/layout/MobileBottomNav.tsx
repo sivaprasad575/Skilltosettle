@@ -56,8 +56,8 @@ export default function MobileBottomNav() {
       ),
     },
     {
-      label: isAuthenticated && user ? "Profile" : "Login",
-      path: isAuthenticated ? "/profile" : "/login",
+      label: isAuthenticated && user ? (user.role === "Admin" ? "Admin" : "Student") : "Login",
+      path: isAuthenticated ? (user?.role === "Admin" ? "/admin" : "/student") : "/login",
       icon: (
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
@@ -74,7 +74,9 @@ export default function MobileBottomNav() {
           const isActive =
             item.path === "/"
               ? location.pathname === "/"
-              : location.pathname.startsWith(item.path);
+              : location.pathname.startsWith(item.path) ||
+                (item.path === "/student" && (location.pathname === "/profile" || location.pathname.startsWith("/student"))) ||
+                (item.path === "/admin" && location.pathname.startsWith("/admin"));
 
           return (
             <NavLink

@@ -239,7 +239,7 @@ export default function CertificateShowcase() {
                     {/* Certificate Award Body */}
                     <div className={styles.certBody}>
                       <div className={styles.certAwardedTo}>This is to proudly certify that</div>
-                      <div className={styles.recipientName}>Candidate Name</div>
+                      <div className={styles.recipientName}>Rahul Verma</div>
                       <div className={styles.certReason}>
                         has demonstrated outstanding technical proficiency, completed real-world production capstone projects, and fulfilled all graduation requirements for
                       </div>

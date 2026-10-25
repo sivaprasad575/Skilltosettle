@@ -91,7 +91,7 @@ export default function CertificateGenerator() {
   const [records, setRecords] = useState<CertificateRecord[]>([]);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  const [candidateName, setCandidateName] = useState("Aditya V. Sharma");
+  const [candidateName, setCandidateName] = useState("Rahul Verma");
   const [courseTitle, setCourseTitle] = useState("Cyber Security & Ethical Hacking Mastery");
   const [specialization, setSpecialization] = useState("Offensive Security, SOC Analysis & Threat Hunting");
   const [mentorName, setMentorName] = useState("Suresh");
@@ -101,7 +101,7 @@ export default function CertificateGenerator() {
   const [issueDate, setIssueDate] = useState("September 2026");
   const [credentialId, setCredentialId] = useState("STS-SEC-2026-8942");
   const [capstoneProject, setCapstoneProject] = useState("Multi-VPC Perimeter Defense & SIEM Incident Automation");
-  const [candidateEmail, setCandidateEmail] = useState("aditya.sharma@alumni.skilltosettle.com");
+  const [candidateEmail, setCandidateEmail] = useState("rahul.verma@alumni.skilltosettle.com");
   const [orientation, setOrientation] = useState<"landscape" | "portrait">("landscape");
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -455,7 +455,7 @@ export default function CertificateGenerator() {
 
   const currentPreviewRecord: CertificateRecord = {
     id: credentialId.trim().toUpperCase(),
-    candidateName: candidateName.trim() || "Candidate Name",
+    candidateName: candidateName.trim() || "Rahul Verma",
     courseTitle: courseTitle.trim() || "Course Title",
     specialization: specialization.trim(),
     mentorName,
@@ -493,7 +493,7 @@ export default function CertificateGenerator() {
                 <input
                   type="email"
                   required
-                  placeholder="admin@skilltosettle.com"
+                  placeholder="Enter admin email"
                   value={loginEmail}
                   onChange={(e) => setLoginEmail(e.target.value)}
                   style={{ width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--border-color)", fontSize: "0.9rem" }}
@@ -521,10 +521,12 @@ export default function CertificateGenerator() {
               </button>
             </form>
 
-            <div style={{ marginTop: "20px", display: "flex", justifyContent: "center", gap: "14px", fontSize: "0.82rem" }}>
+            <div style={{ marginTop: "20px", display: "flex", justifyContent: "center", alignItems: "center", flexWrap: "wrap", gap: "12px", fontSize: "0.82rem" }}>
               <Link to="/" style={{ color: "var(--color-primary, #0284c7)", textDecoration: "none" }}>← Back to Website</Link>
               <span style={{ color: "var(--border-color)" }}>•</span>
-              <Link to="/login" style={{ color: "var(--text-secondary)", textDecoration: "none" }}>Student Login</Link>
+              <Link to="/student" style={{ color: "#0284c7", fontWeight: 700, textDecoration: "none" }}>🎓 Student Login (/student)</Link>
+              <span style={{ color: "var(--border-color)" }}>•</span>
+              <Link to="/register" style={{ color: "#0284c7", fontWeight: 700, textDecoration: "none" }}>Register as Student</Link>
             </div>
           </div>
         </div>
@@ -1140,7 +1142,7 @@ export default function CertificateGenerator() {
                     <input
                       type="text"
                       required
-                      placeholder="e.g. Aditya V. Sharma"
+                      placeholder="e.g. Rahul Verma"
                       className={styles.formInput}
                       value={candidateName}
                       onChange={(e) => setCandidateName(e.target.value)}
@@ -1877,7 +1879,7 @@ export default function CertificateGenerator() {
                 <input
                   type="email"
                   required
-                  placeholder="admin@skilltosettle.com"
+                  placeholder="Enter admin email address"
                   value={newAdminEmail}
                   onChange={(e) => setNewAdminEmail(e.target.value)}
                   style={{ width: "100%", padding: "8px 12px", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "0.88rem", boxSizing: "border-box" }}

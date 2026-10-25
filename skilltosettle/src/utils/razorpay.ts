@@ -94,24 +94,44 @@ export const launchRazorpayCheckout = async (
     return false;
   }
 
-  const razorpayKey = options.key || getRazorpayKey();
+  const razorpayKey = (options.key || getRazorpayKey()).trim();
 
-  const finalOptions: RazorpayOptions = {
+  const cleanNotes: Record<string, string> = {};
+  if (options.notes) {
+    Object.entries(options.notes).forEach(([k, v]) => {
+      if (v !== undefined && v !== null) {
+        cleanNotes[k] = String(v).slice(0, 100);
+      }
+    });
+  }
+
+  const cleanContact = options.prefill?.contact
+    ? options.prefill.contact.replace(/[^0-9]/g, "").slice(-10)
+    : "";
+
+  const finalOptions = {
     key: razorpayKey,
     name: "SkilltoSettle",
-    description: options.description || "Live Cohort Program Enrollment",
-    image: options.image || "https://skilltosettle.com/sts-logo.svg",
-    amount: options.amount,
+    description: (options.description || "Live Cohort Program Enrollment").slice(0, 255),
+    image: options.image || "https://skilltosettle.com/sts-logo.png",
+    amount: Math.round(options.amount),
     currency: options.currency || "INR",
-    prefill: options.prefill || {},
+    prefill: {
+      name: (options.prefill?.name || "").slice(0, 50),
+      email: (options.prefill?.email || "").slice(0, 100),
+      contact: cleanContact,
+    },
     notes: {
       platform: "SkilltoSettle.com",
-      ...(options.notes || {}),
+      ...cleanNotes,
     },
     theme: {
       color: "#009bb9",
-      backdrop_color: "rgba(15, 23, 42, 0.7)",
       ...(options.theme || {}),
+    },
+    retry: {
+      enabled: true,
+      max_count: 3,
     },
     handler: options.handler,
     modal: {
@@ -125,14 +145,24 @@ export const launchRazorpayCheckout = async (
     const rzp = new window.Razorpay(finalOptions);
     rzp.on("payment.failed", (response: any) => {
       console.error("Razorpay Payment Failed:", response.error);
-      alert(
-        `Payment Failed: ${response.error?.description || "Transaction could not be processed. Please try another payment method."}`
-      );
+      const errCode = response.error?.code || "";
+      const desc =
+        response.error?.description ||
+        response.error?.reason ||
+        response.error?.message ||
+        "Transaction could not be processed.";
+
+      let userMsg = `Payment Failed: ${desc}`;
+      if (errCode === "BAD_REQUEST_ERROR" && (desc.includes("key") || desc.includes("merchant") || desc.includes("KYC") || desc.includes("activated"))) {
+        userMsg += "\n\nNote: If this is a live key, please ensure your Razorpay account is fully KYC-verified and activated for Live Mode in the Razorpay Dashboard.";
+      }
+      alert(userMsg);
     });
     rzp.open();
     return true;
-  } catch (err) {
+  } catch (err: any) {
     console.error("Error opening Razorpay checkout:", err);
+    alert(`Could not open Razorpay checkout: ${err?.message || err}`);
     return false;
   }
 };

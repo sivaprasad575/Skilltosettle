@@ -43,6 +43,30 @@ export default function Profile() {
   const [studentPassConfirm, setStudentPassConfirm] = useState("");
   const [studentStatusMsg, setStudentStatusMsg] = useState<{ text: string; error: boolean } | null>(null);
 
+  // Student Direct Inline Login state
+  const [studentLoginEmail, setStudentLoginEmail] = useState("");
+  const [studentLoginPassword, setStudentLoginPassword] = useState("");
+  const [studentLoginError, setStudentLoginError] = useState("");
+  const [isStudentLoggingIn, setIsStudentLoggingIn] = useState(false);
+  const { loginWithCredentials } = useAuth();
+
+  const handleStudentInlineLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setStudentLoginError("");
+    if (!studentLoginEmail.trim() || !studentLoginPassword.trim()) {
+      setStudentLoginError("Please enter your student email and password.");
+      return;
+    }
+    setIsStudentLoggingIn(true);
+    setTimeout(() => {
+      const res = loginWithCredentials(studentLoginEmail.trim(), studentLoginPassword.trim(), "Student");
+      setIsStudentLoggingIn(false);
+      if (!res.success) {
+        setStudentLoginError(res.error || "Invalid student credentials. Please verify your email and password.");
+      }
+    }, 400);
+  };
+
   const handleOpenStudentModal = () => {
     setStudentName(user?.name || "");
     setStudentPass("");
@@ -146,31 +170,114 @@ export default function Profile() {
     }
   };
 
-  // If Not Authenticated
+  // If Not Authenticated: Render Dedicated Student Learning Desk Sign In
   if (!isAuthenticated || !user) {
     return (
       <div className={styles.pageContainer}>
-        <div className="container" style={{ maxWidth: "540px" }}>
+        <div className="container" style={{ maxWidth: "480px", paddingTop: "20px", paddingBottom: "60px" }}>
           <div className={styles.profileCard} style={{ textAlign: "center" }}>
-            <div style={{ fontSize: "3rem", marginBottom: "12px" }}>👤</div>
-            <h1 style={{ fontSize: "1.5rem", fontWeight: 800, color: "#0f172a", marginBottom: "8px" }}>
-              Sign In to View Profile
+            <div style={{ fontSize: "3rem", marginBottom: "12px" }}>🎓</div>
+            <h1 style={{ fontSize: "1.5rem", fontWeight: 800, color: "#0f172a", marginBottom: "6px" }}>
+              Student Learning Desk
             </h1>
-            <p style={{ color: "#64748b", fontSize: "0.9rem", marginBottom: "24px" }}>
-              Access your enrolled courses, verified completion certificates, and placement desk status.
+            <div style={{ color: "#0284c7", fontWeight: 700, fontSize: "0.95rem", marginBottom: "8px" }}>
+              Learner Portal &amp; Course Dashboard
+            </div>
+            <p style={{ color: "#64748b", fontSize: "0.86rem", marginBottom: "20px" }}>
+              Sign in to access your enrolled course batches, verified completion certificates, and placement desk.
             </p>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              <Link to="/login" className="btn btn-primary w-full">
-                🎓 Student / Learner Login →
-              </Link>
-              <Link
-                to="/login?role=admin"
-                className="btn btn-outline w-full"
-                style={{ borderColor: "#7c3aed", color: "#7c3aed" }}
+            {studentLoginError && (
+              <div style={{ background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca", padding: "10px 14px", borderRadius: "8px", fontSize: "0.85rem", marginBottom: "16px", textAlign: "left", fontWeight: 600 }}>
+                {studentLoginError}
+              </div>
+            )}
+
+            <form onSubmit={handleStudentInlineLogin} style={{ display: "flex", flexDirection: "column", gap: "14px", textAlign: "left" }}>
+              <div>
+                <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "4px" }}>
+                  Student Email Address
+                </label>
+                <input
+                  type="email"
+                  required
+                  placeholder="Enter your student email"
+                  value={studentLoginEmail}
+                  onChange={(e) => setStudentLoginEmail(e.target.value)}
+                  style={{ width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--border-color)", fontSize: "0.9rem", boxSizing: "border-box" }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "4px" }}>
+                  Password
+                </label>
+                <input
+                  type="password"
+                  required
+                  placeholder="••••••••"
+                  value={studentLoginPassword}
+                  onChange={(e) => setStudentLoginPassword(e.target.value)}
+                  style={{ width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--border-color)", fontSize: "0.9rem", boxSizing: "border-box" }}
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isStudentLoggingIn}
+                style={{
+                  background: "linear-gradient(135deg, #0284c7 0%, #009bb9 100%)",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "10px",
+                  padding: "12px",
+                  fontWeight: 800,
+                  fontSize: "0.95rem",
+                  cursor: "pointer",
+                  marginTop: "6px",
+                  boxShadow: "0 4px 14px rgba(2, 132, 199, 0.3)",
+                }}
               >
-                🛡️ Admin Portal Login →
+                {isStudentLoggingIn ? "Authenticating..." : "Sign In to Learning Desk →"}
+              </button>
+            </form>
+
+            <div style={{ marginTop: "18px", padding: "14px", background: "#f0f9ff", borderRadius: "10px", border: "1px solid #bae6fd", textAlign: "center" }}>
+              <div style={{ fontSize: "0.86rem", color: "#0369a1", fontWeight: 700, marginBottom: "6px" }}>
+                🎓 Don't have a learner account yet?
+              </div>
+              <p style={{ fontSize: "0.78rem", color: "#64748b", margin: "0 0 10px 0" }}>
+                Register now to get enrolled cohort credentials and syllabus access.
+              </p>
+              <Link
+                to="/register"
+                style={{
+                  display: "inline-block",
+                  background: "#0284c7",
+                  color: "#ffffff",
+                  padding: "8px 18px",
+                  borderRadius: "8px",
+                  fontWeight: 700,
+                  fontSize: "0.85rem",
+                  textDecoration: "none",
+                  boxShadow: "0 2px 8px rgba(2, 132, 199, 0.25)",
+                }}
+              >
+                Register as New Student →
               </Link>
+            </div>
+
+            <div style={{ marginTop: "16px", display: "flex", flexDirection: "column", gap: "10px", fontSize: "0.85rem", borderTop: "1px solid #e2e8f0", paddingTop: "14px" }}>
+              <div style={{ color: "#64748b" }}>
+                Want to explore syllabi? <Link to="/courses" style={{ color: "#0284c7", fontWeight: 700, textDecoration: "none" }}>Browse All Courses →</Link>
+              </div>
+              <div style={{ display: "flex", justifyContent: "center", gap: "14px", fontSize: "0.82rem", marginTop: "4px" }}>
+                <Link to="/" style={{ color: "var(--color-primary, #0284c7)", textDecoration: "none" }}>← Back to Home</Link>
+                <span style={{ color: "var(--border-color)" }}>•</span>
+                <Link to="/register" style={{ color: "#0284c7", fontWeight: 700, textDecoration: "none" }}>Student Register</Link>
+                <span style={{ color: "var(--border-color)" }}>•</span>
+                <Link to="/admin" style={{ color: "#7c3aed", textDecoration: "none", fontWeight: 600 }}>Admin Portal</Link>
+              </div>
             </div>
           </div>
         </div>
@@ -193,7 +300,7 @@ export default function Profile() {
           <div style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "16px" }}>
             <Link to="/" style={{ color: "var(--color-primary)", textDecoration: "none" }}>Home</Link>
             <span style={{ margin: "0 8px" }}>/</span>
-            <span>Administrator Profile</span>
+            <span>Administrator Profile (/admin)</span>
           </div>
 
           {/* Profile Header Banner */}
@@ -236,7 +343,7 @@ export default function Profile() {
                   type="button"
                   onClick={() => {
                     logout();
-                    navigate("/login");
+                    navigate("/admin");
                   }}
                   className="btn btn-outline btn-sm"
                   style={{ borderColor: "#ef4444", color: "#ef4444" }}
@@ -475,7 +582,7 @@ export default function Profile() {
         <div style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "16px" }}>
           <Link to="/" style={{ color: "var(--color-primary)", textDecoration: "none" }}>Home</Link>
           <span style={{ margin: "0 8px" }}>/</span>
-          <span>My Profile</span>
+          <span>Student Profile (/student)</span>
         </div>
 
         {/* Profile Card */}
@@ -520,7 +627,7 @@ export default function Profile() {
                 type="button"
                 onClick={() => {
                   logout();
-                  navigate("/login");
+                  navigate("/student");
                 }}
                 className="btn btn-outline btn-sm"
                 style={{ borderColor: "#ef4444", color: "#ef4444" }}

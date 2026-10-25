@@ -1,23 +1,35 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import Logo from "@/components/ui/Logo";
 import styles from "./Login.module.css";
 
 export default function Login() {
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const redirectPath = searchParams.get("redirect") || "/";
-  const initialRoleParam = searchParams.get("role");
 
-  // Determine initial role
-  const isInitiallyAdmin =
-    initialRoleParam === "admin" ||
-    redirectPath.includes("admin") ||
-    redirectPath.includes("certificate");
+  // Determine initial role from URL path or query parameter
+  const roleParam = searchParams.get("role");
+  const isPathAdmin = location.pathname.startsWith("/admin");
+  const isInitiallyAdmin = isPathAdmin || roleParam === "admin";
 
   const [activeRole, setActiveRole] = useState<"Student" | "Admin">(
     isInitiallyAdmin ? "Admin" : "Student"
   );
+
+  // Sync role whenever route path or search query changes
+  useEffect(() => {
+    const currentRole = searchParams.get("role");
+    if (location.pathname.startsWith("/admin") || currentRole === "admin") {
+      setActiveRole("Admin");
+    } else {
+      setActiveRole("Student");
+    }
+    setError("");
+    setEmail("");
+    setPassword("");
+  }, [location.pathname, location.search]);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -33,14 +45,6 @@ export default function Login() {
 
   const { loginWithCredentials } = useAuth();
   const navigate = useNavigate();
-
-  // Switch role tabs and reset fields
-  const handleRoleSwitch = (role: "Student" | "Admin") => {
-    setActiveRole(role);
-    setError("");
-    setEmail("");
-    setPassword("");
-  };
 
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,12 +70,13 @@ export default function Login() {
         setSuccess(true);
         setTimeout(() => {
           if (activeRole === "Admin") {
-            const target = redirectPath && redirectPath !== "/" ? redirectPath : "/admin/certificates";
+            const target = redirectPath && redirectPath.startsWith("/admin") ? redirectPath : "/admin";
             navigate(target);
           } else {
-            navigate(redirectPath);
+            const target = redirectPath && redirectPath.startsWith("/student") ? redirectPath : "/student";
+            navigate(target);
           }
-        }, 600);
+        }, 450);
       } else {
         setError(res.error || "Invalid credentials. Please try again.");
       }
@@ -93,30 +98,14 @@ export default function Login() {
           <Logo variant="dark" size="lg" />
         </div>
 
-        {/* Role Segmented Tabs (Customer vs Admin) */}
-        <div className={styles.roleTabs}>
-          <button
-            type="button"
-            className={`${styles.roleTab} ${activeRole === "Student" ? styles.roleTabActive : ""}`}
-            onClick={() => handleRoleSwitch("Student")}
-          >
-            <span>🎓</span>
-            <span>Student Login</span>
-          </button>
-          <button
-            type="button"
-            className={`${styles.roleTab} ${activeRole === "Admin" ? styles.roleTabAdminActive : ""}`}
-            onClick={() => handleRoleSwitch("Admin")}
-          >
-            <span>🛡️</span>
-            <span>Admin Portal</span>
-          </button>
-        </div>
-
-        {/* Headline */}
+        {/* Headline & Dedicated Role Badge */}
         <div className={styles.headingBox}>
           {activeRole === "Admin" ? (
             <>
+              <div className={styles.roleBadgeAdmin}>
+                <span>🛡️</span>
+                <span>Administrator Portal Access</span>
+              </div>
               <h1 className={styles.title}>Administrator Portal</h1>
               <h2 className={styles.subtitle} style={{ color: "#7c3aed" }}>
                 Secure Access Desk
@@ -127,6 +116,10 @@ export default function Login() {
             </>
           ) : (
             <>
+              <div className={styles.roleBadgeStudent}>
+                <span>🎓</span>
+                <span>Student Learning Desk</span>
+              </div>
               <h1 className={styles.title}>Welcome back. Please login</h1>
               <h2 className={styles.subtitle}>to your learner account</h2>
               <div
@@ -156,7 +149,23 @@ export default function Login() {
 
 
         {/* Feedback Messages */}
-        {error && <div className={styles.errorAlert}>{error}</div>}
+        {error && (
+          <div className={styles.errorAlert}>
+            <div>{error}</div>
+            {(error.toLowerCase().includes("register") || error.toLowerCase().includes("no account")) && (
+              <Link
+                to={
+                  redirectPath && redirectPath !== "/"
+                    ? `/register?redirect=${encodeURIComponent(redirectPath)}`
+                    : "/register"
+                }
+                className={styles.errorRegisterBtn}
+              >
+                Register as New Student Now →
+              </Link>
+            )}
+          </div>
+        )}
         {success && (
           <div className={styles.successAlert}>
             ✓ {activeRole === "Admin" ? "Admin authenticated! Opening portal..." : "Login successful! Redirecting..."}
@@ -184,7 +193,7 @@ export default function Login() {
             </span>
             <input
               type="email"
-              placeholder={activeRole === "Admin" ? "Admin Email (e.g. admin@skilltosettle.com)" : "Student Email"}
+              placeholder={activeRole === "Admin" ? "Admin Email" : "Student Email"}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className={styles.input}
@@ -271,24 +280,44 @@ export default function Login() {
           </button>
         </form>
 
-        {/* Footer text: Register link only for students */}
+        {/* Student Register Prominent Callout Card */}
         {activeRole === "Student" ? (
-          <div className={styles.registerPrompt}>
-            <span>Don&apos;t have an account? </span>
-            <Link
-              to={
-                redirectPath && redirectPath !== "/"
-                  ? `/register?redirect=${encodeURIComponent(redirectPath)}`
-                  : "/register"
-              }
-              className={styles.registerLink}
-            >
-              Register as New Student
-            </Link>
-          </div>
+          <>
+            <div className={styles.studentRegisterCard}>
+              <div className={styles.studentRegisterHeader}>
+                <span className={styles.studentRegisterIcon}>🎓</span>
+                <div>
+                  <div className={styles.studentRegisterTitle}>New to SkilltoSettle?</div>
+                  <div className={styles.studentRegisterSub}>
+                    Don't have an account? Register as a new student to access enrolled cohorts and certificates.
+                  </div>
+                </div>
+              </div>
+              <Link
+                to={
+                  redirectPath && redirectPath !== "/"
+                    ? `/register?redirect=${encodeURIComponent(redirectPath)}`
+                    : "/register"
+                }
+                className={styles.studentRegisterCta}
+              >
+                Register as New Student →
+              </Link>
+            </div>
+
+            <div style={{ marginTop: "14px", textAlign: "center", fontSize: "0.82rem", color: "var(--text-secondary)" }}>
+              Are you an Administrator?{" "}
+              <Link to="/login?role=admin" style={{ color: "#7c3aed", fontWeight: 700, textDecoration: "none" }}>
+                Admin Portal Sign In →
+              </Link>
+            </div>
+          </>
         ) : (
-          <div className={styles.registerPrompt} style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>
-            Need to change admin credentials? Log in to the portal and visit <strong>Admin Security Settings</strong>.
+          <div style={{ marginTop: "20px", textAlign: "center", fontSize: "0.84rem", color: "var(--text-secondary)" }}>
+            Looking for Student Learning Desk?{" "}
+            <Link to="/login?role=student" style={{ color: "#0284c7", fontWeight: 700, textDecoration: "none" }}>
+              Go to Student Login →
+            </Link>
           </div>
         )}
 

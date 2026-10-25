@@ -24,7 +24,7 @@ export interface CertificateRecord {
 export const INITIAL_CERTIFICATES: CertificateRecord[] = [
   {
     id: "STS-SEC-2026-8942",
-    candidateName: "Aditya V. Sharma",
+    candidateName: "Rahul Verma",
     courseTitle: "Cyber Security & Ethical Hacking Masterclass",
     specialization: "Offensive Security, SOC Analysis & Threat Hunting",
     mentorName: "Suresh",
@@ -36,7 +36,7 @@ export const INITIAL_CERTIFICATES: CertificateRecord[] = [
     grade: "Distinction (96.4%)",
     capstoneProject: "Enterprise Multi-VPC Perimeter Defense & SIEM Automation with Splunk",
     skills: ["SOC Tier 2", "Penetration Testing", "SIEM Architecture", "Network Forensics", "Zero-Trust Architecture"],
-    candidateEmail: "aditya.sharma@alumni.skilltosettle.com",
+    candidateEmail: "rahul.verma@alumni.skilltosettle.com",
     createdAt: "2026-09-01T10:00:00.000Z",
   },
   {
@@ -92,7 +92,7 @@ export const INITIAL_CERTIFICATES: CertificateRecord[] = [
   }
 ];
 
-const STORAGE_KEY = "skilltosettle_certificates_db_v1";
+const STORAGE_KEY = "skilltosettle_certificates_db_v2";
 
 /**
  * Retrieve all certificates combining default seed data + user added certificates

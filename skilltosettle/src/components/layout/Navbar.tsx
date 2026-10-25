@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useCurrency } from "@/context/CurrencyContext";
@@ -11,10 +11,14 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [currencyDropdownOpen, setCurrencyDropdownOpen] = useState(false);
+  const [loginDropdownOpen, setLoginDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const navigate = useNavigate();
   const location = useLocation();
+
+  const loginDropdownRef = useRef<HTMLDivElement>(null);
+  const currencyDropdownRef = useRef<HTMLDivElement>(null);
 
   const { currency, currencyInfo, setCurrency, availableCurrencies } = useCurrency();
   const { user, logout, isAuthenticated } = useAuth();
@@ -39,11 +43,26 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Close dropdowns on click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (loginDropdownRef.current && !loginDropdownRef.current.contains(event.target as Node)) {
+        setLoginDropdownOpen(false);
+      }
+      if (currencyDropdownRef.current && !currencyDropdownRef.current.contains(event.target as Node)) {
+        setCurrencyDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   // Close dropdowns on route change
   useEffect(() => {
     setMobileOpen(false);
     setDropdownOpen(false);
     setCurrencyDropdownOpen(false);
+    setLoginDropdownOpen(false);
   }, [location.pathname]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -245,6 +264,7 @@ export default function Navbar() {
             <div className={styles.navActions}>
               {/* Location Currency Selector */}
               <div
+                ref={currencyDropdownRef}
                 className={styles.currencySelectorWrap}
                 onMouseEnter={() => setCurrencyDropdownOpen(true)}
                 onMouseLeave={() => setCurrencyDropdownOpen(false)}
@@ -252,7 +272,7 @@ export default function Navbar() {
                 <button
                   type="button"
                   className={styles.currencyBtn}
-                  onClick={() => setCurrencyDropdownOpen(!currencyDropdownOpen)}
+                  onClick={() => setCurrencyDropdownOpen((prev) => !prev)}
                   title={`Current Currency: ${currencyInfo.name} (${currencyInfo.symbol.trim()})`}
                   aria-label="Select Currency"
                 >
@@ -313,25 +333,35 @@ export default function Navbar() {
                 )}
               </button>
 
-              {/* Auth Controls: Login / Profile & Logout */}
+              {/* Auth Controls: Single Login Button with Selection Menu */}
               {isAuthenticated && user ? (
                 <div className={styles.userProfileWrap}>
-                  {user.role === "Admin" && (
+                  {user.role === "Admin" ? (
+                    <>
+                      <Link
+                        to="/admin"
+                        className={styles.adminBadge}
+                        title="Open Admin Operations & Sales Portal (/admin)"
+                      >
+                        🛡️ Admin
+                      </Link>
+                      <Link
+                        to="/admin/profile"
+                        className={styles.profileBtn}
+                        title="Open Admin Profile"
+                      >
+                        Profile
+                      </Link>
+                    </>
+                  ) : (
                     <Link
-                      to="/admin"
-                      className={styles.adminBadge}
-                      title="Open Admin Operations & Sales Portal"
+                      to="/student"
+                      className={styles.profileBtn}
+                      title="Open Student Profile (/student)"
                     >
-                      🛡️ Admin
+                      🎓 Profile
                     </Link>
                   )}
-                  <Link
-                    to="/profile"
-                    className={styles.profileBtn}
-                    title="Open My Profile"
-                  >
-                    Profile
-                  </Link>
                   <button
                     onClick={logout}
                     className={styles.logoutBtn}
@@ -341,9 +371,72 @@ export default function Navbar() {
                   </button>
                 </div>
               ) : (
-                <Link to="/login" className={styles.loginBtn} title="Login to account">
-                  Login
-                </Link>
+                <div
+                  ref={loginDropdownRef}
+                  className={styles.loginDropdownWrap}
+                  onMouseEnter={() => setLoginDropdownOpen(true)}
+                  onMouseLeave={() => setLoginDropdownOpen(false)}
+                >
+                  <button
+                    type="button"
+                    className={styles.loginBtn}
+                    title="Choose Login Account"
+                    onClick={() => setLoginDropdownOpen((prev) => !prev)}
+                    aria-expanded={loginDropdownOpen}
+                  >
+                    <span>Login</span>
+                    <svg
+                      className={styles.loginChevron}
+                      style={{ transform: loginDropdownOpen ? "rotate(180deg)" : "rotate(0deg)" }}
+                      width="10"
+                      height="10"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                    >
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </button>
+
+                  {loginDropdownOpen && (
+                    <div className={styles.loginDropdownMenu}>
+                      <Link
+                        to="/login?role=student"
+                        className={styles.loginDropdownItem}
+                        onClick={() => setLoginDropdownOpen(false)}
+                      >
+                        <span className={styles.loginItemIcon}>🎓</span>
+                        <div>
+                          <div className={styles.loginItemTitle}>Student Login</div>
+                          <div className={styles.loginItemSub}>Course batches &amp; certificates</div>
+                        </div>
+                      </Link>
+
+                      <Link
+                        to="/login?role=admin"
+                        className={styles.loginDropdownItem}
+                        onClick={() => setLoginDropdownOpen(false)}
+                      >
+                        <span className={styles.loginItemIcon}>🛡️</span>
+                        <div>
+                          <div className={styles.loginItemTitle}>Admin Portal</div>
+                          <div className={styles.loginItemSub}>Management &amp; sales desk</div>
+                        </div>
+                      </Link>
+
+                      <div className={styles.loginDropdownDivider} />
+
+                      <Link
+                        to="/register"
+                        className={styles.loginDropdownItemRegister}
+                        onClick={() => setLoginDropdownOpen(false)}
+                      >
+                        <span>New Student? <strong>Register Here →</strong></span>
+                      </Link>
+                    </div>
+                  )}
+                </div>
               )}
 
               {/* Hamburger Mobile Toggle */}
@@ -474,49 +567,106 @@ export default function Navbar() {
             <div className={styles.mobileCtasBox}>
               {isAuthenticated && user ? (
                 <>
-                  {user.role === "Admin" && (
+                  {user.role === "Admin" ? (
+                    <>
+                      <Link
+                        to="/admin"
+                        className="btn w-full"
+                        style={{
+                          background: "linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)",
+                          color: "#ffffff",
+                          marginBottom: "8px",
+                          fontWeight: 700,
+                        }}
+                        onClick={() => setMobileOpen(false)}
+                      >
+                        🛡️ Open Admin Portal (/admin)
+                      </Link>
+                      <Link
+                        to="/admin/profile"
+                        className="btn w-full"
+                        style={{
+                          background: "var(--color-accent, #009bb9)",
+                          color: "#ffffff",
+                          marginBottom: "8px",
+                          fontWeight: 700,
+                        }}
+                        onClick={() => setMobileOpen(false)}
+                      >
+                        👤 Admin Profile
+                      </Link>
+                    </>
+                  ) : (
                     <Link
-                      to="/admin"
+                      to="/student"
                       className="btn w-full"
                       style={{
-                        background: "linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)",
+                        background: "var(--color-accent, #009bb9)",
                         color: "#ffffff",
                         marginBottom: "8px",
                         fontWeight: 700,
                       }}
                       onClick={() => setMobileOpen(false)}
                     >
-                      🛡️ Open Admin Portal
+                      🎓 Student Profile (/student)
                     </Link>
                   )}
-                  <Link
-                    to="/profile"
-                    className="btn w-full"
-                    style={{
-                      background: "var(--color-accent, #009bb9)",
-                      color: "#ffffff",
-                      marginBottom: "8px",
-                      fontWeight: 700,
-                    }}
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    👤 My Profile
-                  </Link>
                   <button
                     onClick={() => {
                       logout();
                       setMobileOpen(false);
                     }}
                     className="btn btn-outline w-full"
-                    style={{ color: "#ef4444", borderColor: "#ef4444", fontWeight: 700 }}
+                    style={{ color: "#ef4444", borderColor: "#ef4444", fontWeight: 700, marginBottom: "8px" }}
                   >
                     Logout
                   </button>
                 </>
               ) : (
-                <Link to="/login" className={styles.mobileSignInBtn} onClick={() => setMobileOpen(false)}>
-                  Login to Account →
-                </Link>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "8px", width: "100%" }}>
+                  <Link
+                    to="/login?role=student"
+                    className="btn w-full"
+                    style={{
+                      background: "var(--color-accent, #009bb9)",
+                      color: "#ffffff",
+                      fontWeight: 700,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "8px",
+                      textDecoration: "none",
+                    }}
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    🎓 Student Login
+                  </Link>
+                  <Link
+                    to="/login?role=admin"
+                    className="btn w-full"
+                    style={{
+                      background: "linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)",
+                      color: "#ffffff",
+                      fontWeight: 700,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "8px",
+                      textDecoration: "none",
+                    }}
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    🛡️ Admin Portal
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="btn btn-outline w-full"
+                    style={{ borderColor: "#0284c7", color: "#0284c7", fontWeight: 700, textDecoration: "none" }}
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    📝 Register as New Student
+                  </Link>
+                </div>
               )}
               <Link to="/career-finder" className="btn btn-primary w-full" onClick={() => setMobileOpen(false)}>
                 Start Free Assessment

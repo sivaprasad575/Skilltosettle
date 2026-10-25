@@ -532,6 +532,16 @@
   animation: fadeInDown 0.18s ease forwards;
 }
 
+.currencyDropdown::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background: transparent;
+}
+
 :global([data-theme="dark"]) .currencyDropdown {
   background: #1e293b;
   border-color: #334155;
@@ -623,7 +633,6 @@
   transform: rotate(20deg) scale(1.06);
 }
 
-/* Login & Profile Buttons in Header */
 .loginBtn {
   background: var(--color-accent, #009bb9);
   color: #ffffff !important;
@@ -640,12 +649,111 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 5px;
+  border: none;
+  cursor: pointer;
+  outline: none;
 }
 
 .loginBtn:hover {
   background: var(--color-accent-hover, #00849e);
   transform: translateY(-1px);
   box-shadow: 0 6px 18px rgba(0, 155, 185, 0.38);
+}
+
+.loginDropdownWrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.loginChevron {
+  transition: transform 0.2s ease;
+}
+
+.loginDropdownMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+  padding: 8px;
+  min-width: 250px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  animation: fadeInDown 0.18s ease forwards;
+}
+
+/* Invisible hover bridge to prevent premature closing when moving mouse cursor */
+.loginDropdownMenu::before {
+  content: "";
+  position: absolute;
+  top: -12px;
+  left: 0;
+  right: 0;
+  height: 12px;
+  background: transparent;
+}
+
+:global([data-theme="dark"]) .loginDropdownMenu {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.loginDropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--text-primary, #0f172a);
+  transition: background 0.15s ease;
+}
+
+.loginDropdownItem:hover {
+  background: var(--bg-muted, #f8fafc);
+}
+
+.loginItemIcon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.loginItemTitle {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--text-primary, #0f172a);
+}
+
+.loginItemSub {
+  font-size: 0.74rem;
+  color: var(--text-secondary, #64748b);
+}
+
+.loginDropdownDivider {
+  height: 1px;
+  background: var(--border-color, #e2e8f0);
+  margin: 4px 0;
+}
+
+.loginDropdownItemRegister {
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  color: var(--color-accent, #009bb9);
+  text-decoration: none;
+  border-radius: 8px;
+  text-align: center;
+  background: rgba(0, 155, 185, 0.06);
+  transition: background 0.15s ease;
+}
+
+.loginDropdownItemRegister:hover {
+  background: rgba(0, 155, 185, 0.12);
 }
 
 .profileBtn {
